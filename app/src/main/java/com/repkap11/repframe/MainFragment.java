@@ -10,19 +10,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions;
 
 import java.io.File;
 
 public class MainFragment extends Fragment {
 
     private static final String TAG = MainFragment.class.getSimpleName();
-    private static final long IMAGE_DELAY_MS = 1000;
     private Handler mHandler;
     private ImageView mImageView;
     private FileObserver mFileObserver;
@@ -31,23 +32,27 @@ public class MainFragment extends Fragment {
     private int mCurrentFileIndex = 0;
     private int mCurrentChangeOffset = 1;
     private boolean mKeepShowingImages = true;
-
+    private int mImageDelay_s;
     private final Runnable mShowImageRunnable = new Runnable() {
         @Override
         public void run() {
+            mHandler.removeCallbacks(this);
             mCurrentFileIndex += mCurrentChangeOffset;
             if (mCurrentFileIndex >= mFilesList.length) {
                 mCurrentFileIndex = 0;
             }
-            if (mCurrentFileIndex <= 0) {
+            if (mCurrentFileIndex < 0) {
                 mCurrentFileIndex = mFilesList.length - 1;
             }
             setImageByPath(mFilesList[mCurrentFileIndex]);
             if (mKeepShowingImages) {
-                mHandler.postDelayed(this, IMAGE_DELAY_MS);
+                Log.i(TAG, "run: Showing after:" + mImageDelay_s);
+                long delay_ms = mImageDelay_s * 1000L;
+                mHandler.postDelayed(this, delay_ms);
             }
         }
     };
+    private TextView mLabelView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -83,12 +88,14 @@ public class MainFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         mImageView = rootView.findViewById(R.id.fragment_main_image);
+        mLabelView = rootView.findViewById(R.id.fragment_main_label);
         rootView.findViewById(R.id.fragment_main_next).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mKeepShowingImages = false;
                 mCurrentChangeOffset = 1;
-                mHandler.post(mShowImageRunnable);
+                mShowImageRunnable.run();
+                updateUi();
             }
         });
         rootView.findViewById(R.id.fragment_main_prev).setOnClickListener(new View.OnClickListener() {
@@ -96,8 +103,8 @@ public class MainFragment extends Fragment {
             public void onClick(View v) {
                 mKeepShowingImages = false;
                 mCurrentChangeOffset = -1;
-                mHandler.post(mShowImageRunnable);
-
+                mShowImageRunnable.run();
+                updateUi();
             }
         });
         rootView.findViewById(R.id.fragment_main_pause).setOnClickListener(new View.OnClickListener() {
@@ -105,11 +112,13 @@ public class MainFragment extends Fragment {
             public void onClick(View v) {
                 mKeepShowingImages = !mKeepShowingImages;
                 if (mKeepShowingImages) {
+                    mCurrentChangeOffset = 0;
+                    mShowImageRunnable.run();
                     mCurrentChangeOffset = 1;
-                    mHandler.post(mShowImageRunnable);
                 } else {
                     mHandler.removeCallbacks(mShowImageRunnable);
                 }
+                updateUi();
             }
         });
         rootView.findViewById(R.id.fragment_main_settings).setOnClickListener(new View.OnClickListener() {
@@ -119,23 +128,39 @@ public class MainFragment extends Fragment {
                 startActivity(intent);
             }
         });
-        setImageByPath(new File(mRootFile, "test.png"));
+        updateUi();
         return rootView;
     }
 
     private void setImageByPath(File file) {
         if (file.exists()) {
-            Glide.with(this)
-                    .load(file)
-                    .into(mImageView);
+//            mImageView.setImageURI(Uri.fromFile(file));
+            Glide.with(this).asBitmap().load(file).transition(BitmapTransitionOptions.withCrossFade(500)).into(mImageView);
+//            Glide.with(this).load(file).into(mImageView);
         }
+    }
+
+    private void updateUi() {
+        String labelValue = null;
+        if (!mKeepShowingImages) {
+            labelValue = "Paused";
+        }
+        mLabelView.setVisibility(labelValue == null ? View.INVISIBLE : View.VISIBLE);
+        mLabelView.setText(labelValue);
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        mImageDelay_s = SettingsFragment.getImageDelaySeconds(requireContext());
+        Log.i(TAG, "onStart: Using delay:" + mImageDelay_s);
         mFileObserver.startWatching();
-        mHandler.post(mShowImageRunnable);
+        mHandler.removeCallbacks(mShowImageRunnable);
+        mKeepShowingImages = true;
+        mCurrentChangeOffset = 0;
+        mShowImageRunnable.run();
+        mCurrentChangeOffset = 1;
+        updateUi();
     }
 
     @Override
@@ -148,6 +173,7 @@ public class MainFragment extends Fragment {
     @Override
     public void onDestroyView() {
         mImageView = null;
+        mLabelView = null;
         super.onDestroyView();
     }
 

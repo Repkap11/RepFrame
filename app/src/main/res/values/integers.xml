@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <integer name="image_speed_default_s">30</integer>
+    <integer name="image_delay_s_default">30</integer>
 </resources>
