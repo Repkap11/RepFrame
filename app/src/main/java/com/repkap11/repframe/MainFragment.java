@@ -1,5 +1,6 @@
 package com.repkap11.repframe;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.FileObserver;
 import android.os.Handler;
@@ -28,15 +29,23 @@ public class MainFragment extends Fragment {
     private File mRootFile;
     private File[] mFilesList;
     private int mCurrentFileIndex = 0;
-    private final Runnable mNextImageRunnable = new Runnable() {
+    private int mCurrentChangeOffset = 1;
+    private boolean mKeepShowingImages = true;
+
+    private final Runnable mShowImageRunnable = new Runnable() {
         @Override
         public void run() {
-            mCurrentFileIndex += 1;
+            mCurrentFileIndex += mCurrentChangeOffset;
             if (mCurrentFileIndex >= mFilesList.length) {
                 mCurrentFileIndex = 0;
             }
+            if (mCurrentFileIndex <= 0) {
+                mCurrentFileIndex = mFilesList.length - 1;
+            }
             setImageByPath(mFilesList[mCurrentFileIndex]);
-            mHandler.postDelayed(this, IMAGE_DELAY_MS);
+            if (mKeepShowingImages) {
+                mHandler.postDelayed(this, IMAGE_DELAY_MS);
+            }
         }
     };
 
@@ -74,6 +83,42 @@ public class MainFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         mImageView = rootView.findViewById(R.id.fragment_main_image);
+        rootView.findViewById(R.id.fragment_main_next).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mKeepShowingImages = false;
+                mCurrentChangeOffset = 1;
+                mHandler.post(mShowImageRunnable);
+            }
+        });
+        rootView.findViewById(R.id.fragment_main_prev).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mKeepShowingImages = false;
+                mCurrentChangeOffset = -1;
+                mHandler.post(mShowImageRunnable);
+
+            }
+        });
+        rootView.findViewById(R.id.fragment_main_pause).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mKeepShowingImages = !mKeepShowingImages;
+                if (mKeepShowingImages) {
+                    mCurrentChangeOffset = 1;
+                    mHandler.post(mShowImageRunnable);
+                } else {
+                    mHandler.removeCallbacks(mShowImageRunnable);
+                }
+            }
+        });
+        rootView.findViewById(R.id.fragment_main_settings).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(requireContext(), SettingsActivity.class);
+                startActivity(intent);
+            }
+        });
         setImageByPath(new File(mRootFile, "test.png"));
         return rootView;
     }
@@ -90,13 +135,13 @@ public class MainFragment extends Fragment {
     public void onStart() {
         super.onStart();
         mFileObserver.startWatching();
-        mHandler.post(mNextImageRunnable);
+        mHandler.post(mShowImageRunnable);
     }
 
     @Override
     public void onStop() {
         mFileObserver.stopWatching();
-        mHandler.removeCallbacks(mNextImageRunnable);
+        mHandler.removeCallbacks(mShowImageRunnable);
         super.onStop();
     }
 
