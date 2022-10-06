@@ -33,10 +33,11 @@ public class MainFragment extends Fragment {
     private Handler mHandler;
     private ImageView mImageView;
     private FileObserver mFileObserver;
+    @NonNull
     private File mRootFile;
     @NonNull
     private File[] mFilesList;
-    private int mCurrentFileIndex = 0;
+    private int mCurrentFileIndex = -1;
     private int mCurrentChangeOffset = 1;
     private boolean mKeepShowingImages = true;
     private int mImageDelay_s;
@@ -49,6 +50,7 @@ public class MainFragment extends Fragment {
             if (mFilesList.length == 0) {
                 return;
             }
+            boolean neverShownAnImage = mCurrentFileIndex == -1;
             mCurrentFileIndex += mCurrentChangeOffset;
             if (mCurrentFileIndex >= mFilesList.length) {
                 mCurrentFileIndex = 0;
@@ -56,7 +58,7 @@ public class MainFragment extends Fragment {
             if (mCurrentFileIndex < 0) {
                 mCurrentFileIndex = mFilesList.length - 1;
             }
-            if (mCurrentChangeOffset != 0) {
+            if (neverShownAnImage || mCurrentChangeOffset != 0) {
                 setImageByPath(mFilesList[mCurrentFileIndex]);
             }
             if (mKeepShowingImages) {
@@ -66,51 +68,62 @@ public class MainFragment extends Fragment {
             }
         }
     };
+    private String mPendingShareSoShowImage = null;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         setRetainInstance(true);
         mHandler = new Handler(Looper.getMainLooper());
         super.onCreate(savedInstanceState);
-        mRootFile = new File(requireContext().getExternalFilesDir(null), "images");
-        mRootFile.mkdir();//This helps the user fine the location where to put their files.
-        if (!mRootFile.exists()) {
-            //Ahh, our folder doesn't exist. Exit!!
-            requireActivity().finish();
-            return;
-        }
-        if (!mRootFile.isDirectory()) {
-            //Ahh, our folder isn't a folder. Exit!!
-            requireActivity().finish();
-            return;
-        }
-        Log.i(TAG, "Add files to:" + mRootFile.getPath());
-
-        mFilesList = mRootFile.listFiles();
-        if (mFilesList == null) {
-            //Ahh, Some other IO error. Exit!!
-            requireActivity().finish();
-            return;
-        }
+        mRootFile = MainActivity.getRootImagesFile(requireContext());
+        updateFileListOrFinish();
         mFileObserver = new FileObserver(mRootFile, FileObserver.CREATE | FileObserver.DELETE) {
             @Override
             public void onEvent(int event, @Nullable String path) {
                 Log.d(TAG, "onEvent() called with: event = [" + event + "], path = [" + path + "]");
                 boolean wasEmpty = mFilesList.length == 0;
-                mFilesList = mRootFile.listFiles();
-                if (mFilesList == null) {
-                    //Ahh, Some other IO error. Exit!!
-                    requireActivity().finish();
-                    return;
-                }
-                if (wasEmpty) {
-                    mKeepShowingImages = true;
+                updateFileListOrFinish();
+                if (mPendingShareSoShowImage != null) {
+                    showPendingImage();
+                } else if (wasEmpty) {
                     mCurrentChangeOffset = 1;
+                    mKeepShowingImages = true;
                     //Post needed since this is not the UI thread.
                     mHandler.post(mShowImageRunnable);
                 }
             }
         };
+    }
+
+    private void showPendingImage() {
+        if (mPendingShareSoShowImage == null) {
+            Log.e(TAG, "showPendingImageIfNeeded: No pending image!!!");
+            return;
+        }
+        for (int i = 0; i < mFilesList.length; i++) {
+            if (mFilesList[i].getName().equals(mPendingShareSoShowImage)) {
+                Log.i(TAG, "onEvent: Found image:" + i);
+                mCurrentFileIndex = i - 1;
+                break;
+            }
+        }
+        mCurrentChangeOffset = 1;
+        mKeepShowingImages = false;
+        //Post needed since this is not the UI thread.
+        mHandler.post(mShowImageRunnable);
+    }
+
+    public void setPendingImage(String fileName) {
+        Log.i(TAG, "setPendingImage: Waiting for fileName:" + fileName);
+        mPendingShareSoShowImage = fileName;
+    }
+
+    private void updateFileListOrFinish() {
+        mFilesList = mRootFile.listFiles();
+        if (mFilesList == null) {
+            //Ahh, Some other IO error. Exit!!
+            requireActivity().finish();
+        }
     }
 
     @Nullable
@@ -231,12 +244,17 @@ public class MainFragment extends Fragment {
         super.onStart();
         mImageDelay_s = SettingsFragment.getImageDelaySeconds(requireContext());
         Log.i(TAG, "onStart: Using delay:" + mImageDelay_s);
+        updateFileListOrFinish();
+        if (mPendingShareSoShowImage != null) {
+            showPendingImage();
+        } else {
+            mHandler.removeCallbacks(mShowImageRunnable);
+            mKeepShowingImages = true;
+            mCurrentChangeOffset = 0;
+            mShowImageRunnable.run();
+            mCurrentChangeOffset = 1;
+        }
         mFileObserver.startWatching();
-        mHandler.removeCallbacks(mShowImageRunnable);
-        mKeepShowingImages = true;
-        mCurrentChangeOffset = 0;
-        mShowImageRunnable.run();
-        mCurrentChangeOffset = 1;
         updateUi();
     }
 
