@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
     <PreferenceCategory
         app:allowDividerAbove="false"
         app:allowDividerBelow="false"
@@ -15,5 +16,31 @@
             app:title="Delay Between Images"
             app:updatesContinuously="true"
             app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        app:allowDividerAbove="false"
+        app:allowDividerBelow="false"
+        app:iconSpaceReserved="false"
+        app:title="Manage Images">
+        <Preference
+            app:iconSpaceReserved="false"
+            app:key="preference_manage_images"
+            app:title="Open Image Manager">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetClass="com.repkap11.repframe.ImageManagerActivity"
+                android:targetPackage="@string/package_name" />
+        </Preference>
+    </PreferenceCategory>
+    <PreferenceCategory
+        app:allowDividerAbove="false"
+        app:allowDividerBelow="false"
+        app:iconSpaceReserved="false"
+        app:title="Manage Images">
+        <Preference
+            app:iconSpaceReserved="false"
+            app:key="preference_app_version"
+            app:title="App Version"
+            tools:summary="version_str" />
     </PreferenceCategory>
 </PreferenceScreen>

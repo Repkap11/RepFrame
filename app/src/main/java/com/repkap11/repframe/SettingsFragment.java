@@ -51,5 +51,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             }
         });
         imageDelayPref.getOnPreferenceChangeListener().onPreferenceChange(imageDelayPref, imageDelayPref.getValue());
+
+        Preference appVersionPreference = requirePreference("preference_app_version");
+        appVersionPreference.setSummary(BuildConfig.VERSION_NAME);
     }
 }

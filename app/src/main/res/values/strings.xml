@@ -1,8 +1,10 @@
 <resources>
     <string name="app_name">RepFrame</string>
+    <string name="package_name">com.repkap11.repframe</string>
     <string name="title_activity_main2">MainActivity2</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="delete_selected_images">Delete Selected Images</string>
     <plurals name="quantity_seconds">
         <item quantity="one">%d second</item>
         <item quantity="other">%d seconds</item>

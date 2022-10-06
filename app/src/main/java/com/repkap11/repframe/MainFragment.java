@@ -30,6 +30,7 @@ import java.io.File;
 public class MainFragment extends Fragment {
 
     private static final String TAG = MainFragment.class.getSimpleName();
+    boolean mHasPopulatedImageView = false;
     private Handler mHandler;
     private ImageView mImageView;
     private FileObserver mFileObserver;
@@ -50,7 +51,6 @@ public class MainFragment extends Fragment {
             if (mFilesList.length == 0) {
                 return;
             }
-            boolean neverShownAnImage = mCurrentFileIndex == -1;
             mCurrentFileIndex += mCurrentChangeOffset;
             if (mCurrentFileIndex >= mFilesList.length) {
                 mCurrentFileIndex = 0;
@@ -58,8 +58,9 @@ public class MainFragment extends Fragment {
             if (mCurrentFileIndex < 0) {
                 mCurrentFileIndex = mFilesList.length - 1;
             }
-            if (neverShownAnImage || mCurrentChangeOffset != 0) {
+            if (!mHasPopulatedImageView || mCurrentChangeOffset != 0) {
                 setImageByPath(mFilesList[mCurrentFileIndex]);
+                mHasPopulatedImageView = true;
             }
             if (mKeepShowingImages) {
                 Log.i(TAG, "run: Showing after:" + mImageDelay_s);
@@ -81,16 +82,20 @@ public class MainFragment extends Fragment {
             @Override
             public void onEvent(int event, @Nullable String path) {
                 Log.d(TAG, "onEvent() called with: event = [" + event + "], path = [" + path + "]");
-                boolean wasEmpty = mFilesList.length == 0;
-                updateFileListOrFinish();
-                if (mPendingShareSoShowImage != null) {
-                    showPendingImage();
-                } else if (wasEmpty) {
-                    mCurrentChangeOffset = 1;
-                    mKeepShowingImages = true;
-                    //Post needed since this is not the UI thread.
-                    mHandler.post(mShowImageRunnable);
-                }
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        boolean wasEmpty = mFilesList.length == 0;
+                        updateFileListOrFinish();
+                        if (mPendingShareSoShowImage != null) {
+                            showPendingImage();
+                        } else if (wasEmpty) {
+                            mCurrentChangeOffset = 1;
+                            mKeepShowingImages = true;
+                            mShowImageRunnable.run();
+                        }
+                    }
+                });
             }
         };
     }
@@ -131,6 +136,7 @@ public class MainFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         mImageView = rootView.findViewById(R.id.fragment_main_image);
+        mHasPopulatedImageView = false;
         mLabelView = rootView.findViewById(R.id.fragment_main_label);
         rootView.findViewById(R.id.fragment_main_next).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -185,7 +191,7 @@ public class MainFragment extends Fragment {
                     .load(file)
                     .skipMemoryCache(true)
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
-                    .transition(BitmapTransitionOptions.withCrossFade(500))
+                    .transition(BitmapTransitionOptions.withCrossFade())
                     .listener(new RequestListener<Bitmap>() {
                         @Override
                         public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
