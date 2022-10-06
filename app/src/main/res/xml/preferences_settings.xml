@@ -5,7 +5,7 @@
         app:allowDividerAbove="false"
         app:allowDividerBelow="false"
         app:iconSpaceReserved="false"
-        app:title="Device">
+        app:title="Frame Settings">
         <SeekBarPreference
             android:defaultValue="@integer/image_delay_s_default"
             android:max="60"

@@ -3,7 +3,7 @@
     <style name="Theme.RepFrame" parent="Theme.MaterialComponents.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/repframe_blue</item>
-        <item name="colorPrimaryVariant">@color/repframe_blue</item>
+        <item name="colorPrimaryVariant">@color/repframe_blue_darker</item>
         <item name="colorOnPrimary">@android:color/black</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/repframe_blue</item>
@@ -11,13 +11,8 @@
         <item name="colorOnSecondary">@android:color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        <item name="android:windowBackground">@android:color/black</item>
         <!-- Customize your theme here. -->
-    </style>
-
-    <style name="Theme.RepFrame.Fullscreen" parent="Theme.RepFrame">
-        <item name="android:actionBarStyle">@style/Widget.Theme.RepFrame.ActionBar.Fullscreen</item>
-        <item name="android:windowActionBarOverlay">true</item>
-        <item name="android:windowBackground">@null</item>
     </style>
 
 </resources>

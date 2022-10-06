@@ -1,6 +1,7 @@
 package com.repkap11.repframe;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.FileObserver;
 import android.os.Handler;
@@ -17,7 +18,12 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 
 import java.io.File;
 
@@ -28,15 +34,20 @@ public class MainFragment extends Fragment {
     private ImageView mImageView;
     private FileObserver mFileObserver;
     private File mRootFile;
+    @NonNull
     private File[] mFilesList;
     private int mCurrentFileIndex = 0;
     private int mCurrentChangeOffset = 1;
     private boolean mKeepShowingImages = true;
     private int mImageDelay_s;
+    private String mErrorMessage = null;
     private final Runnable mShowImageRunnable = new Runnable() {
         @Override
         public void run() {
             mHandler.removeCallbacks(this);
+            if (mFilesList.length == 0) {
+                return;
+            }
             mCurrentFileIndex += mCurrentChangeOffset;
             if (mCurrentFileIndex >= mFilesList.length) {
                 mCurrentFileIndex = 0;
@@ -44,6 +55,7 @@ public class MainFragment extends Fragment {
             if (mCurrentFileIndex < 0) {
                 mCurrentFileIndex = mFilesList.length - 1;
             }
+
             setImageByPath(mFilesList[mCurrentFileIndex]);
             if (mKeepShowingImages) {
                 Log.i(TAG, "run: Showing after:" + mImageDelay_s);
@@ -74,11 +86,28 @@ public class MainFragment extends Fragment {
         Log.i(TAG, "Add files to:" + mRootFile.getPath());
 
         mFilesList = mRootFile.listFiles();
+        if (mFilesList == null) {
+            //Ahh, Some other IO error. Exit!!
+            requireActivity().finish();
+            return;
+        }
         mFileObserver = new FileObserver(mRootFile, FileObserver.CREATE | FileObserver.DELETE) {
             @Override
             public void onEvent(int event, @Nullable String path) {
                 Log.d(TAG, "onEvent() called with: event = [" + event + "], path = [" + path + "]");
+                boolean wasEmpty = mFilesList.length == 0;
                 mFilesList = mRootFile.listFiles();
+                if (mFilesList == null) {
+                    //Ahh, Some other IO error. Exit!!
+                    requireActivity().finish();
+                    return;
+                }
+                if (wasEmpty) {
+                    mKeepShowingImages = true;
+                    mCurrentChangeOffset = 1;
+                    //Post needed since this is not the UI thread.
+                    mHandler.post(mShowImageRunnable);
+                }
             }
         };
     }
@@ -134,19 +163,64 @@ public class MainFragment extends Fragment {
 
     private void setImageByPath(File file) {
         if (file.exists()) {
-//            mImageView.setImageURI(Uri.fromFile(file));
-            Glide.with(this).asBitmap().load(file).transition(BitmapTransitionOptions.withCrossFade(500)).into(mImageView);
+            // Not caching is needed to get fade to work reliably.
+            Glide.with(this)
+                    .asBitmap()
+                    .load(file)
+                    .skipMemoryCache(true)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .transition(BitmapTransitionOptions.withCrossFade(500))
+                    .listener(new RequestListener<Bitmap>() {
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
+//                            Log.d(TAG, "onLoadFailed() called with: e = [" + e + "], model = [" + model + "], target = [" + target + "], isFirstResource = [" + isFirstResource + "]");
+                            String path = model.toString();
+                            String name = new File(path).getName();
+                            mErrorMessage = "Failed to load: " + name;
+                            mHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    updateUi();
+                                }
+                            });
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
+                            if (mErrorMessage != null) {
+                                mErrorMessage = null;
+                                mHandler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        updateUi();
+                                    }
+                                });
+                            }
+                            return false;
+                        }
+                    })
+                    .into(mImageView);
 //            Glide.with(this).load(file).into(mImageView);
         }
     }
 
     private void updateUi() {
         String labelValue = null;
+        boolean selectable = false;
         if (!mKeepShowingImages) {
             labelValue = "Paused";
         }
+        if (mErrorMessage != null) {
+            labelValue = mErrorMessage;
+        }
+        if (mFilesList.length == 0) {
+            selectable = true;
+            labelValue = "No files found in: " + mRootFile;
+        }
         mLabelView.setVisibility(labelValue == null ? View.INVISIBLE : View.VISIBLE);
         mLabelView.setText(labelValue);
+        mLabelView.setTextIsSelectable(selectable);
     }
 
     @Override
