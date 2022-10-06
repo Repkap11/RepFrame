@@ -41,6 +41,7 @@ public class MainFragment extends Fragment {
     private boolean mKeepShowingImages = true;
     private int mImageDelay_s;
     private String mErrorMessage = null;
+    private TextView mLabelView;
     private final Runnable mShowImageRunnable = new Runnable() {
         @Override
         public void run() {
@@ -55,8 +56,9 @@ public class MainFragment extends Fragment {
             if (mCurrentFileIndex < 0) {
                 mCurrentFileIndex = mFilesList.length - 1;
             }
-
-            setImageByPath(mFilesList[mCurrentFileIndex]);
+            if (mCurrentChangeOffset != 0) {
+                setImageByPath(mFilesList[mCurrentFileIndex]);
+            }
             if (mKeepShowingImages) {
                 Log.i(TAG, "run: Showing after:" + mImageDelay_s);
                 long delay_ms = mImageDelay_s * 1000L;
@@ -64,7 +66,6 @@ public class MainFragment extends Fragment {
             }
         }
     };
-    private TextView mLabelView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -141,10 +142,12 @@ public class MainFragment extends Fragment {
             public void onClick(View v) {
                 mKeepShowingImages = !mKeepShowingImages;
                 if (mKeepShowingImages) {
+                    //Play
                     mCurrentChangeOffset = 0;
                     mShowImageRunnable.run();
                     mCurrentChangeOffset = 1;
                 } else {
+                    //Pause
                     mHandler.removeCallbacks(mShowImageRunnable);
                 }
                 updateUi();
