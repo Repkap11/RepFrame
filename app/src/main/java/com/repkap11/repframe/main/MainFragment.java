@@ -1,4 +1,4 @@
-package com.repkap11.repframe;
+package com.repkap11.repframe.main;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -25,6 +25,9 @@ import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.signature.ObjectKey;
+import com.repkap11.repframe.R;
+import com.repkap11.repframe.settings.SettingsActivity;
+import com.repkap11.repframe.settings.SettingsFragment;
 
 import java.io.File;
 import java.util.Arrays;

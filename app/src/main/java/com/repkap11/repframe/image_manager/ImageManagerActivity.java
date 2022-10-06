@@ -1,8 +1,10 @@
-package com.repkap11.repframe;
+package com.repkap11.repframe.image_manager;
 
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.repkap11.repframe.R;
 
 public class ImageManagerActivity extends AppCompatActivity {
     private static final String TAG = ImageManagerActivity.class.getSimpleName();

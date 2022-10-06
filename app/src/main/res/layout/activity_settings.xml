@@ -15,7 +15,7 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/activity_settings_frag"
-        android:name="com.repkap11.repframe.SettingsFragment"
+        android:name="com.repkap11.repframe.settings.SettingsFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:layout="@layout/empty" />

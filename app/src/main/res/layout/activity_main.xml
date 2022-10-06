@@ -2,7 +2,7 @@
 <androidx.fragment.app.FragmentContainerView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main_frag"
-    android:name="com.repkap11.repframe.MainFragment"
+    android:name="com.repkap11.repframe.main.MainFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:keepScreenOn="true"

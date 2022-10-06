@@ -1,4 +1,4 @@
-package com.repkap11.repframe;
+package com.repkap11.repframe.settings;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -9,6 +9,9 @@ import androidx.annotation.Nullable;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SeekBarPreference;
+
+import com.repkap11.repframe.BuildConfig;
+import com.repkap11.repframe.R;
 
 import java.util.Objects;
 

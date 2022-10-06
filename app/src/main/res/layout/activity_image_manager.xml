@@ -15,7 +15,7 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/activity_image_manager_frag"
-        android:name="com.repkap11.repframe.ImageManagerFragment"
+        android:name="com.repkap11.repframe.image_manager.ImageManagerFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:layout="@layout/empty" />

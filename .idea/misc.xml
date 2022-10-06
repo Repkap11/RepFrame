@@ -8,6 +8,7 @@
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.2765957446808511" />
         <entry key="app/src/main/res/layout/activity_main2.xml" value="0.30416666666666664" />
         <entry key="app/src/main/res/layout/activity_settings.xml" value="0.3177083333333333" />
+        <entry key="app/src/main/res/layout/dialog_fragment_image_preview.xml" value="0.3182291666666667" />
         <entry key="app/src/main/res/layout/dialog_preference_number_picker.xml" value="0.3177083333333333" />
         <entry key="app/src/main/res/layout/fragment_image_manager.xml" value="0.31927083333333334" />
         <entry key="app/src/main/res/layout/fragment_image_manager_item.xml" value="0.31927083333333334" />

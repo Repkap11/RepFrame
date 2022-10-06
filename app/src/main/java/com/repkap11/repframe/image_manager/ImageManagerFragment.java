@@ -1,4 +1,4 @@
-package com.repkap11.repframe;
+package com.repkap11.repframe.image_manager;
 
 import android.os.Bundle;
 import android.os.FileObserver;
@@ -13,6 +13,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.repkap11.repframe.R;
+import com.repkap11.repframe.main.MainActivity;
 
 import java.io.File;
 import java.util.Arrays;
@@ -53,6 +56,15 @@ public class ImageManagerFragment extends Fragment {
             @Override
             public boolean isImageChecked(String path) {
                 return mCheckedFiles.contains(path);
+            }
+
+            @Override
+            public void onImageLongClicked(String path) {
+                ImagePreviewDialogFragment dialogFragment = new ImagePreviewDialogFragment();
+                Bundle args = new Bundle();
+                args.putString(ImagePreviewDialogFragment.ARG_IMAGE_PATH, path);
+                dialogFragment.setArguments(args);
+                dialogFragment.show(getParentFragmentManager(), TAG + "ImagePreviewDialogFragment" + path);
             }
         });
         updateFileListOrFinish();

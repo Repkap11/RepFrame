@@ -1,4 +1,4 @@
-package com.repkap11.repframe;
+package com.repkap11.repframe.main;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -15,6 +15,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
+
+import com.repkap11.repframe.R;
 
 import java.io.File;
 import java.io.FileOutputStream;

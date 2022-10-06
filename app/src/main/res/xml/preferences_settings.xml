@@ -19,7 +19,7 @@
         app:title="Open Image Manager">
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetClass="com.repkap11.repframe.ImageManagerActivity"
+            android:targetClass="com.repkap11.repframe.image_manager.ImageManagerActivity"
             android:targetPackage="@string/package_name" />
     </Preference>
     <Preference

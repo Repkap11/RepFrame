@@ -15,4 +15,7 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <style name="Theme.RepFrame.Dialog" parent="@style/Theme.MaterialComponents.Dialog.Alert" />
+
+
 </resources>

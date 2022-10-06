@@ -1,4 +1,4 @@
-package com.repkap11.repframe;
+package com.repkap11.repframe.image_manager;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -17,6 +17,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.signature.ObjectKey;
+import com.repkap11.repframe.R;
+import com.repkap11.repframe.main.MainFragment;
 
 import java.io.File;
 import java.util.Collections;
@@ -41,6 +43,12 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHolder
             @Override
             public void onItemChecked(int index, boolean isChecked) {
                 mImageCheckCallback.onImageChecked(isChecked, mFiles.get(index).getPath());
+            }
+
+            @Override
+            public void onItemLongClicked(int index) {
+                mImageCheckCallback.onImageLongClicked(mFiles.get(index).getPath());
+
             }
         });
     }
@@ -99,6 +107,14 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHolder
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     ViewHolder holder = (ViewHolder) buttonView.getTag();
                     holder.callback.onItemChecked(holder.getAdapterPosition(), isChecked);
+                }
+            });
+            this.Check.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    ViewHolder holder = (ViewHolder) v.getTag();
+                    holder.callback.onItemLongClicked(holder.getAdapterPosition());
+                    return true;
                 }
             });
         }
