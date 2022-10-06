@@ -10,7 +10,7 @@ android {
         minSdk 25
         targetSdk 32
         versionCode 1
-        versionName "1.0"
+        versionName Integer.toString(versionCode)
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -30,6 +30,11 @@ android {
         }
         debug {
             signingConfig signingConfigs.release
+        }
+    }
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "RepFrame_" + variant.versionName + ".apk"
         }
     }
     compileOptions {
