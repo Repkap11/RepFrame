@@ -15,14 +15,17 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 
 public class ImageManagerFragment extends Fragment {
 
     private static final String TAG = ImageManagerFragment.class.getSimpleName();
     private File mRootFile;
     private FileObserver mFileObserver;
-    private File[] mFilesList;
+    private List<File> mFilesList;
     private ImagesAdapter mAdapter;
     private HashSet<String> mCheckedFiles;
     private View mDeleteButton;
@@ -77,11 +80,23 @@ public class ImageManagerFragment extends Fragment {
     }
 
     private void updateFileListOrFinish() {
-        mFilesList = mRootFile.listFiles();
+        mFilesList = Arrays.asList(mRootFile.listFiles());
         if (mFilesList == null) {
             //Ahh, Some other IO error. Exit!!
             requireActivity().finish();
             return;
+        }
+        Iterator<String> it = mCheckedFiles.iterator();
+        boolean removedAny = false;
+        while (it.hasNext()) {
+            String path = it.next();
+            if (!mFilesList.contains(path)) {
+                it.remove();
+                removedAny = true;
+            }
+        }
+        if (removedAny) {
+            updateDeleteButtonState();
         }
         mAdapter.onFilesChanged(mFilesList);
     }
@@ -91,6 +106,7 @@ public class ImageManagerFragment extends Fragment {
             return false;
         }
         mCheckedFiles.clear();
+        updateDeleteButtonState();
         mAdapter.notifyDataSetChanged();
         return true;
     }

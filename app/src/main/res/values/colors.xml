@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="repframe_blue">#1A52FF</color>
-    <color name="repframe_blue_darker">#0C3AC8</color>
+    <color name="repframe_blue">#325810</color>
+    <color name="repframe_blue_darker">#2A3E2B</color>
 
 </resources>

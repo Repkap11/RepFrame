@@ -2,45 +2,29 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
-    <PreferenceCategory
-        app:allowDividerAbove="false"
-        app:allowDividerBelow="false"
+
+    <SeekBarPreference
+        android:defaultValue="@integer/image_delay_s_default"
+        android:max="60"
         app:iconSpaceReserved="false"
-        app:title="Frame Settings">
-        <SeekBarPreference
-            android:defaultValue="@integer/image_delay_s_default"
-            android:max="60"
-            app:iconSpaceReserved="false"
-            app:key="preference_image_delay_s"
-            app:min="1"
-            app:title="Delay Between Images"
-            app:updatesContinuously="true"
-            app:useSimpleSummaryProvider="true" />
-    </PreferenceCategory>
-    <PreferenceCategory
-        app:allowDividerAbove="false"
-        app:allowDividerBelow="false"
+        app:key="preference_image_delay_s"
+        app:min="1"
+        app:title="Delay Between Images"
+        app:updatesContinuously="true"
+        app:useSimpleSummaryProvider="true" />
+
+    <Preference
         app:iconSpaceReserved="false"
-        app:title="Manage Images">
-        <Preference
-            app:iconSpaceReserved="false"
-            app:key="preference_manage_images"
-            app:title="Open Image Manager">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:targetClass="com.repkap11.repframe.ImageManagerActivity"
-                android:targetPackage="@string/package_name" />
-        </Preference>
-    </PreferenceCategory>
-    <PreferenceCategory
-        app:allowDividerAbove="false"
-        app:allowDividerBelow="false"
+        app:key="preference_manage_images"
+        app:title="Open Image Manager">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="com.repkap11.repframe.ImageManagerActivity"
+            android:targetPackage="@string/package_name" />
+    </Preference>
+    <Preference
         app:iconSpaceReserved="false"
-        app:title="Manage Images">
-        <Preference
-            app:iconSpaceReserved="false"
-            app:key="preference_app_version"
-            app:title="App Version"
-            tools:summary="version_str" />
-    </PreferenceCategory>
+        app:key="preference_app_version"
+        app:title="App Version"
+        tools:summary="version_str" />
 </PreferenceScreen>

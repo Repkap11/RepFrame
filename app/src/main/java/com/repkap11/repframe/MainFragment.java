@@ -24,8 +24,11 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.signature.ObjectKey;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
 public class MainFragment extends Fragment {
 
@@ -37,7 +40,7 @@ public class MainFragment extends Fragment {
     @NonNull
     private File mRootFile;
     @NonNull
-    private File[] mFilesList;
+    private List<File> mFilesList;
     private int mCurrentFileIndex = -1;
     private int mCurrentChangeOffset = 1;
     private boolean mKeepShowingImages = true;
@@ -48,18 +51,18 @@ public class MainFragment extends Fragment {
         @Override
         public void run() {
             mHandler.removeCallbacks(this);
-            if (mFilesList.length == 0) {
+            if (mFilesList.size() == 0) {
                 return;
             }
             mCurrentFileIndex += mCurrentChangeOffset;
-            if (mCurrentFileIndex >= mFilesList.length) {
+            if (mCurrentFileIndex >= mFilesList.size()) {
                 mCurrentFileIndex = 0;
             }
             if (mCurrentFileIndex < 0) {
-                mCurrentFileIndex = mFilesList.length - 1;
+                mCurrentFileIndex = mFilesList.size() - 1;
             }
             if (!mHasPopulatedImageView || mCurrentChangeOffset != 0) {
-                setImageByPath(mFilesList[mCurrentFileIndex]);
+                setImageByPath(mFilesList.get(mCurrentFileIndex));
                 mHasPopulatedImageView = true;
             }
             if (mKeepShowingImages) {
@@ -70,6 +73,20 @@ public class MainFragment extends Fragment {
         }
     };
     private String mPendingShareSoShowImage = null;
+
+    public static long getCacheKey(File file) {
+        long lastModified = file.lastModified();
+        long current_time = System.currentTimeMillis();
+        long key;
+        if (current_time - lastModified < 1000) {//If the file was changed within 1 second, don't cache it.
+            Log.i(TAG, "getCacheKey: Using time for cache!!");
+            key = current_time;
+            //If this file changed super recently, don't cache it.
+        } else {
+            key = lastModified;
+        }
+        return key;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -85,7 +102,7 @@ public class MainFragment extends Fragment {
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        boolean wasEmpty = mFilesList.length == 0;
+                        boolean wasEmpty = mFilesList.size() == 0;
                         updateFileListOrFinish();
                         if (mPendingShareSoShowImage != null) {
                             showPendingImage();
@@ -105,8 +122,8 @@ public class MainFragment extends Fragment {
             Log.e(TAG, "showPendingImageIfNeeded: No pending image!!!");
             return;
         }
-        for (int i = 0; i < mFilesList.length; i++) {
-            if (mFilesList[i].getName().equals(mPendingShareSoShowImage)) {
+        for (int i = 0; i < mFilesList.size(); i++) {
+            if (mFilesList.get(i).getName().equals(mPendingShareSoShowImage)) {
                 Log.i(TAG, "onEvent: Found image:" + i);
                 mCurrentFileIndex = i - 1;
                 break;
@@ -124,11 +141,13 @@ public class MainFragment extends Fragment {
     }
 
     private void updateFileListOrFinish() {
-        mFilesList = mRootFile.listFiles();
-        if (mFilesList == null) {
+        File[] files = mRootFile.listFiles();
+        if (files == null) {
             //Ahh, Some other IO error. Exit!!
             requireActivity().finish();
+            return;
         }
+        mFilesList = Arrays.asList(files);
     }
 
     @Nullable
@@ -190,8 +209,9 @@ public class MainFragment extends Fragment {
                     .asBitmap()
                     .load(file)
                     .skipMemoryCache(true)
+                    .signature(new ObjectKey(getCacheKey(file)))
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
-                    .transition(BitmapTransitionOptions.withCrossFade())
+                    .transition(BitmapTransitionOptions.withCrossFade(700))
                     .listener(new RequestListener<Bitmap>() {
                         @Override
                         public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
@@ -236,7 +256,8 @@ public class MainFragment extends Fragment {
         if (mErrorMessage != null) {
             labelValue = mErrorMessage;
         }
-        if (mFilesList.length == 0) {
+        if (mFilesList.size() == 0) {
+            selectable = true;
             selectable = true;
             labelValue = "No files found in: " + mRootFile;
         }

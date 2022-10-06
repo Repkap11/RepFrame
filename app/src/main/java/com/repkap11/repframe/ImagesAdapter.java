@@ -16,14 +16,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.signature.ObjectKey;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.List;
 
 public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHolder> {
     private static final String TAG = ImagesAdapter.class.getSimpleName();
     private final Handler mMainHandler;
     private final ImagesAdapterCallback mImageCheckCallback;
-    private File[] mFiles = new File[]{};
+    private List<File> mFiles = Collections.emptyList();
 
     public ImagesAdapter(ImagesAdapterCallback callback) {
         mMainHandler = new Handler(Looper.getMainLooper());
@@ -37,23 +40,24 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHolder
         return new ViewHolder(child, new ItemCheckedCallback() {
             @Override
             public void onItemChecked(int index, boolean isChecked) {
-                mImageCheckCallback.onImageChecked(isChecked, mFiles[index].getPath());
+                mImageCheckCallback.onImageChecked(isChecked, mFiles.get(index).getPath());
             }
         });
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        File imageFile = mFiles[position];
+        File imageFile = mFiles.get(position);
         holder.Name.setText(imageFile.getName());
         holder.Check.setChecked(mImageCheckCallback.isImageChecked(imageFile.getPath()));
         Glide.with(holder.Image.getContext())
                 .asBitmap()
+                .signature(new ObjectKey(MainFragment.getCacheKey(imageFile)))
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .load(imageFile).into(holder.Image);
     }
 
-    public void onFilesChanged(File[] files) {
+    public void onFilesChanged(List<File> files) {
         if (files == null) {
             Log.e(TAG, "onFilesChanged: Bad, null files");
             return;
@@ -74,7 +78,7 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHolder
 
     @Override
     public int getItemCount() {
-        return mFiles.length;
+        return mFiles.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

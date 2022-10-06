@@ -15,6 +15,7 @@ import java.util.Objects;
 public class SettingsFragment extends PreferenceFragmentCompat {
     private static final String PREFERENCES_REPFRAME = "PREFERENCES_REPFRAME";
     private static final String PREF_IMAGE_DELAY_S = "preference_image_delay_s";
+    private static final String PREF_APP_VERSION = "preference_app_version";
     private SharedPreferences mSharedPrefs;
 
 
