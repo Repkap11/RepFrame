@@ -43,7 +43,7 @@ public class ImageManagerFragment extends Fragment {
         mCheckedFiles = new HashSet<String>();
         mAdapter = new ImagesAdapter(new ImagesAdapterCallback() {
             @Override
-            public boolean onImageClicked(boolean isCurrentlyClicked, String path) {
+            public boolean onImageClicked(boolean isCurrentlyClicked, String path, int index) {
                 Log.d(TAG, "onImageChecked() called with: isCurrentlyClicked = [" + isCurrentlyClicked + "], path = [" + path + "]");
                 if (mCheckedFiles.isEmpty()) {
                     showDialogForPath(path);
@@ -54,7 +54,11 @@ public class ImageManagerFragment extends Fragment {
                 } else {
                     mCheckedFiles.add(path);
                 }
-                mAdapter.notifyDataSetChanged();
+                if (mCheckedFiles.size() < 2) {
+                    mAdapter.notifyDataSetChanged();
+                } else {
+                    mAdapter.notifyItemChanged(index);
+                }
                 updateDeleteButtonState();
                 return !isCurrentlyClicked;
             }

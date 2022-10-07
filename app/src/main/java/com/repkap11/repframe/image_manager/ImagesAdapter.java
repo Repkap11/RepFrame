@@ -41,7 +41,7 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHolder
         return new ViewHolder(child, new ItemCheckedCallback() {
             @Override
             public boolean onItemClicked(int index, boolean isCurrentlyChecked) {
-                return mImageCheckCallback.onImageClicked(isCurrentlyChecked, mFiles.get(index).getPath());
+                return mImageCheckCallback.onImageClicked(isCurrentlyChecked, mFiles.get(index).getPath(), index);
             }
 
             @Override
