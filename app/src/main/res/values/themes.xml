@@ -2,12 +2,12 @@
     <!-- Base application theme. -->
     <style name="Theme.RepFrame" parent="Theme.MaterialComponents.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/repframe_blue</item>
-        <item name="colorPrimaryVariant">@color/repframe_blue_darker</item>
+        <item name="colorPrimary">@color/repframe_primary</item>
+        <item name="colorPrimaryVariant">@color/repframe_primary_darker</item>
         <item name="colorOnPrimary">@android:color/black</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/repframe_blue</item>
-        <item name="colorSecondaryVariant">@color/repframe_blue</item>
+        <item name="colorSecondary">@color/repframe_primary</item>
+        <item name="colorSecondaryVariant">@color/repframe_primary</item>
         <item name="colorOnSecondary">@android:color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>

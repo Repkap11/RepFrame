@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -34,6 +35,14 @@ public class ImagePreviewDialogFragment extends DialogFragment {
         View rootView = getActivity().getLayoutInflater().inflate(R.layout.dialog_fragment_image_preview, null, false);
         String path = getArguments().getString(ARG_IMAGE_PATH);
         String name = new File(path).getName();
+
+        rootView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "onClick() called with: v = [" + v + "]");
+                dismiss();
+            }
+        });
 
         TextView textView = rootView.findViewById(R.id.dialog_fragment_image_preview_name);
         textView.setText(name);
@@ -70,8 +79,16 @@ public class ImagePreviewDialogFragment extends DialogFragment {
 //                })
                 .into(mImageView);
         alert.setView(rootView);
+        alert.setCancelable(true);
         Dialog dialog = alert.show();
         dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        dialog.getWindow().getDecorView().setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                dismiss();
+                return true;
+            }
+        });
         return dialog;
     }
 
