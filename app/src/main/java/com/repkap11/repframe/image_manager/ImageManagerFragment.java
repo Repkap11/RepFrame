@@ -43,7 +43,7 @@ public class ImageManagerFragment extends Fragment {
         mCheckedFiles = new HashSet<String>();
         mAdapter = new ImagesAdapter(new ImagesAdapterCallback() {
             @Override
-            public void onImageChecked(boolean isChecked, String path) {
+            public boolean onImageChecked(boolean isChecked, String path) {
                 Log.d(TAG, "onImageChecked() called with: isChecked = [" + isChecked + "], path = [" + path + "]");
                 if (isChecked) {
                     mCheckedFiles.add(path);
@@ -51,6 +51,7 @@ public class ImageManagerFragment extends Fragment {
                     mCheckedFiles.remove(path);
                 }
                 updateDeleteButtonState();
+                return isChecked;
             }
 
             @Override
@@ -59,12 +60,13 @@ public class ImageManagerFragment extends Fragment {
             }
 
             @Override
-            public void onImageLongClicked(String path) {
+            public boolean onImageLongClicked(String path) {
                 ImagePreviewDialogFragment dialogFragment = new ImagePreviewDialogFragment();
                 Bundle args = new Bundle();
                 args.putString(ImagePreviewDialogFragment.ARG_IMAGE_PATH, path);
                 dialogFragment.setArguments(args);
                 dialogFragment.show(getParentFragmentManager(), TAG + "ImagePreviewDialogFragment" + path);
+                return false;
             }
         });
         updateFileListOrFinish();

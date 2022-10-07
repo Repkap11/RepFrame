@@ -41,14 +41,13 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHolder
         View child = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_image_manager_item, parent, false);
         return new ViewHolder(child, new ItemCheckedCallback() {
             @Override
-            public void onItemChecked(int index, boolean isChecked) {
-                mImageCheckCallback.onImageChecked(isChecked, mFiles.get(index).getPath());
+            public boolean onItemChecked(int index, boolean isChecked) {
+                return mImageCheckCallback.onImageChecked(isChecked, mFiles.get(index).getPath());
             }
 
             @Override
-            public void onItemLongClicked(int index) {
-                mImageCheckCallback.onImageLongClicked(mFiles.get(index).getPath());
-
+            public boolean onItemLongClicked(int index) {
+                return mImageCheckCallback.onImageLongClicked(mFiles.get(index).getPath());
             }
         });
     }
@@ -106,14 +105,17 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHolder
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     ViewHolder holder = (ViewHolder) buttonView.getTag();
-                    holder.callback.onItemChecked(holder.getAdapterPosition(), isChecked);
+                    boolean checked = holder.callback.onItemChecked(holder.getAdapterPosition(), isChecked);
+                    holder.Check.setChecked(checked);
+
                 }
             });
             this.Check.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
                     ViewHolder holder = (ViewHolder) v.getTag();
-                    holder.callback.onItemLongClicked(holder.getAdapterPosition());
+                    boolean checked = holder.callback.onItemLongClicked(holder.getAdapterPosition());
+                    holder.Check.setChecked(checked);
                     return true;
                 }
             });
