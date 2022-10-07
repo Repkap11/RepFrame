@@ -43,15 +43,36 @@ public class ImageManagerFragment extends Fragment {
         mCheckedFiles = new HashSet<String>();
         mAdapter = new ImagesAdapter(new ImagesAdapterCallback() {
             @Override
-            public boolean onImageChecked(boolean isChecked, String path) {
-                Log.d(TAG, "onImageChecked() called with: isChecked = [" + isChecked + "], path = [" + path + "]");
-                if (isChecked) {
-                    mCheckedFiles.add(path);
-                } else {
-                    mCheckedFiles.remove(path);
+            public boolean onImageClicked(boolean isCurrentlyClicked, String path) {
+                Log.d(TAG, "onImageChecked() called with: isCurrentlyClicked = [" + isCurrentlyClicked + "], path = [" + path + "]");
+                if (mCheckedFiles.isEmpty()) {
+                    showDialogForPath(path);
+                    return false;
                 }
+                if (isCurrentlyClicked) {
+                    mCheckedFiles.remove(path);
+                } else {
+                    mCheckedFiles.add(path);
+                }
+                mAdapter.notifyDataSetChanged();
                 updateDeleteButtonState();
-                return isChecked;
+                return !isCurrentlyClicked;
+            }
+
+            @Override
+            public boolean onImageLongClicked(String path) {
+                if (!mCheckedFiles.isEmpty()) {
+                    showDialogForPath(path);
+                    return false;
+                }
+                mCheckedFiles.add(path);
+                mAdapter.notifyDataSetChanged();
+                updateDeleteButtonState();
+                return false;
+            }
+
+            public boolean isAnyImageChecked() {
+                return !mCheckedFiles.isEmpty();
             }
 
             @Override
@@ -59,14 +80,13 @@ public class ImageManagerFragment extends Fragment {
                 return mCheckedFiles.contains(path);
             }
 
-            @Override
-            public boolean onImageLongClicked(String path) {
+
+            private void showDialogForPath(String path) {
                 ImagePreviewDialogFragment dialogFragment = new ImagePreviewDialogFragment();
                 Bundle args = new Bundle();
                 args.putString(ImagePreviewDialogFragment.ARG_IMAGE_PATH, path);
                 dialogFragment.setArguments(args);
                 dialogFragment.show(getParentFragmentManager(), TAG + "ImagePreviewDialogFragment" + path);
-                return false;
             }
         });
         updateFileListOrFinish();

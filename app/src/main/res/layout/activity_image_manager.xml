@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
         android:minHeight="?attr/actionBarSize"
-        android:title="Settings" />
+        android:title="Image Manager" />
 
 
     <androidx.fragment.app.FragmentContainerView

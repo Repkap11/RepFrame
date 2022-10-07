@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -41,13 +40,18 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHolder
         View child = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_image_manager_item, parent, false);
         return new ViewHolder(child, new ItemCheckedCallback() {
             @Override
-            public boolean onItemChecked(int index, boolean isChecked) {
-                return mImageCheckCallback.onImageChecked(isChecked, mFiles.get(index).getPath());
+            public boolean onItemClicked(int index, boolean isCurrentlyChecked) {
+                return mImageCheckCallback.onImageClicked(isCurrentlyChecked, mFiles.get(index).getPath());
             }
 
             @Override
             public boolean onItemLongClicked(int index) {
                 return mImageCheckCallback.onImageLongClicked(mFiles.get(index).getPath());
+            }
+
+            @Override
+            public boolean isAnyImageChecked() {
+                return mImageCheckCallback.isAnyImageChecked();
             }
         });
     }
@@ -56,7 +60,9 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHolder
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         File imageFile = mFiles.get(position);
         holder.Name.setText(imageFile.getName());
+        holder.Click.setTag(holder);
         holder.Check.setChecked(mImageCheckCallback.isImageChecked(imageFile.getPath()));
+        holder.Check.setVisibility(mImageCheckCallback.isAnyImageChecked() ? View.VISIBLE : View.INVISIBLE);
         Glide.with(holder.Image.getContext())
                 .asBitmap()
                 .signature(new ObjectKey(MainFragment.getCacheKey(imageFile)))
@@ -92,6 +98,7 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHolder
         public TextView Name;
         public ImageView Image;
         public CheckBox Check;
+        public View Click;
         public ItemCheckedCallback callback;
 
         public ViewHolder(@NonNull View itemView, ItemCheckedCallback callback) {
@@ -100,22 +107,29 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHolder
             this.Name = itemView.findViewById(R.id.fragment_image_manager_recycler_item_name);
             this.Image = itemView.findViewById(R.id.fragment_image_manager_recycler_item_image);
             this.Check = itemView.findViewById(R.id.fragment_image_manager_recycler_item_check);
-            this.Check.setTag(this);
-            this.Check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            this.Click = itemView.findViewById(R.id.fragment_image_manager_recycler_item_click_region);
+            this.Click.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    ViewHolder holder = (ViewHolder) buttonView.getTag();
-                    boolean checked = holder.callback.onItemChecked(holder.getAdapterPosition(), isChecked);
+                public void onClick(View v) {
+                    ViewHolder holder = (ViewHolder) v.getTag();
+                    if (holder == null) {
+                        return;
+                    }
+                    boolean checked = holder.callback.onItemClicked(holder.getAdapterPosition(), holder.Check.isChecked());
                     holder.Check.setChecked(checked);
-
                 }
             });
-            this.Check.setOnLongClickListener(new View.OnLongClickListener() {
+            this.Click.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
                     ViewHolder holder = (ViewHolder) v.getTag();
+                    if (holder == null) {
+                        return false;
+                    }
                     boolean checked = holder.callback.onItemLongClicked(holder.getAdapterPosition());
-                    holder.Check.setChecked(checked);
+                    if (checked) {
+                        holder.Check.setChecked(checked);
+                    }
                     return true;
                 }
             });

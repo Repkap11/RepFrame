@@ -1,7 +1,9 @@
 package com.repkap11.repframe.image_manager;
 
 public interface ItemCheckedCallback {
-    boolean onItemChecked(int index, boolean isChecked);
+    boolean onItemClicked(int index, boolean isCurrentlyChecked);
 
     boolean onItemLongClicked(int index);
+
+    boolean isAnyImageChecked();
 }
