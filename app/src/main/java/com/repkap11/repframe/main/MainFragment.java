@@ -87,6 +87,7 @@ public class MainFragment extends Fragment {
             if (!mHasPopulatedImageView || mCurrentChangeOffset != 0) {
                 setImageByPath(mFilesList.get(mCurrentFileIndex));
                 mHasPopulatedImageView = true;
+                preloadNextImage();
             }
             if (mKeepShowingImages && !isVideoFile(mFilesList.get(mCurrentFileIndex))) {
                 Log.i(TAG, "run: Showing after:" + mImageDelay_s);
@@ -292,11 +293,10 @@ public class MainFragment extends Fragment {
             revealContent();
             return;
         }
-        // Not caching is needed to get fade to work reliably.
+        // The signature makes the cache key follow file changes.
         Glide.with(this)
                 .asBitmap()
                 .load(file)
-                .skipMemoryCache(true)
                 .signature(new ObjectKey(getCacheKey(file)))
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .transition(BitmapTransitionOptions.withCrossFade(700))
@@ -336,6 +336,29 @@ public class MainFragment extends Fragment {
                     }
                 })
                 .into(mImageView);
+    }
+
+    private void preloadNextImage() {
+        if (mFilesList.size() < 2 || mImageView == null) {
+            return;
+        }
+        int nextIndex = mCurrentFileIndex + 1;
+        if (nextIndex >= mFilesList.size()) {
+            nextIndex = 0;
+        }
+        File nextFile = mFilesList.get(nextIndex);
+        int width = mImageView.getWidth();
+        int height = mImageView.getHeight();
+        if (isVideoFile(nextFile) || width <= 0 || height <= 0) {
+            return;
+        }
+        Glide.with(this)
+                .asBitmap()
+                .load(nextFile)
+                .fitCenter()
+                .signature(new ObjectKey(getCacheKey(nextFile)))
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .preload(width, height);
     }
 
     private final Runnable mStartPlaybackRunnable = new Runnable() {
