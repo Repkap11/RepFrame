@@ -3,12 +3,13 @@ plugins {
 }
 
 android {
-    compileSdk 32
+    namespace 'com.repkap11.repframe'
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.repkap11.repframe"
         minSdk 23
-        targetSdk 32
+        targetSdk 35
         versionCode 3
         versionName Integer.toString(versionCode)
 
@@ -43,6 +44,7 @@ android {
     }
     buildFeatures {
         viewBinding true
+        buildConfig true
     }
 
 
