@@ -94,7 +94,7 @@ public class ImageManagerFragment extends Fragment {
             }
         });
         updateFileListOrFinish();
-        mFileObserver = new FileObserver(mRootFile, FileObserver.CREATE | FileObserver.DELETE) {
+        mFileObserver = new FileObserver(mRootFile.getAbsolutePath(), FileObserver.CREATE | FileObserver.DELETE) {
             @Override
             public void onEvent(int event, @Nullable String path) {
                 Log.d(TAG, "onEvent() called with: event = [" + event + "], path = [" + path + "]");

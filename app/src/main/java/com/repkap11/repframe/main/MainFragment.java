@@ -130,7 +130,7 @@ public class MainFragment extends Fragment {
         super.onCreate(savedInstanceState);
         mRootFile = MainActivity.getRootImagesFile(requireContext());
         updateFileListOrFinish();
-        mFileObserver = new FileObserver(mRootFile, FileObserver.CREATE | FileObserver.DELETE) {
+        mFileObserver = new FileObserver(mRootFile.getAbsolutePath(), FileObserver.CREATE | FileObserver.DELETE) {
             @Override
             public void onEvent(int event, @Nullable String path) {
                 Log.d(TAG, "onEvent() called with: event = [" + event + "], path = [" + path + "]");
