@@ -72,6 +72,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        // On API < 30 the hidden state is just systemUiVisibility flags, which get
+        // cleared when another activity comes to front. Re-apply on focus regain.
+        if (hasFocus) {
+            hideSystemBars();
+        }
+    }
+
+    @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         processIntents(intent);

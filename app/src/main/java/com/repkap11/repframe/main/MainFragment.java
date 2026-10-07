@@ -247,6 +247,9 @@ public class MainFragment extends Fragment {
             swapToPendingFile();
             return;
         }
+        if (mFader == null) {
+            return;
+        }
         mFader.animate().cancel();
         mFader.animate().alpha(1f).setDuration(VIDEO_FADE_DURATION_MS / 2).start();
         mHandler.postDelayed(mSwapToBlackRunnable, VIDEO_FADE_DURATION_MS / 2);
@@ -261,6 +264,9 @@ public class MainFragment extends Fragment {
     };
 
     private void swapToPendingFile() {
+        if (mFader == null) {
+            return;
+        }
         if (mPendingFile == null || mPendingFile.equals(mCurrentFile)) {
             revealContent();
             return;
@@ -275,6 +281,9 @@ public class MainFragment extends Fragment {
 
     private void revealContent() {
         mAtBlack = false;
+        if (mFader == null) {
+            return;
+        }
         mFader.animate().cancel();
         mFader.animate().alpha(0f).setDuration(VIDEO_FADE_DURATION_MS / 2).start();
     }
@@ -492,6 +501,7 @@ public class MainFragment extends Fragment {
     public void onStop() {
         mFileObserver.stopWatching();
         mHandler.removeCallbacks(mShowImageRunnable);
+        mHandler.removeCallbacks(mSwapToBlackRunnable);
         pauseVideo();
         super.onStop();
     }

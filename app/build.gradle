@@ -10,7 +10,7 @@ android {
         applicationId "com.repkap11.repframe"
         minSdk 23
         targetSdk 37
-        versionCode 6
+        versionCode 7
         versionName Integer.toString(versionCode)
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
